@@ -1,0 +1,92 @@
+安装Zabbix server and agent（agent是可选的）
+安装Zabbix server and agent:（配置自己监控自己，所以安装了zabbix-agent）
+
+yum -y install zabbix-server-mysql zabbix-web-mysql zabbix-agent
+可以上zabbix rpm包官网查看或下载相应包
+http://repo.zabbix.com/
+
+创建MySQL 数据库和用户
+登录Mysql：
+
+[root@localhost software]# mysql -uroot -p123456
+创建一个数据库zabbix和数据库用户zabbix：
+
+mysql> create database zabbix character set utf8;
+
+mysql> grant all privileges on zabbix.* to 'zabbix'@'localhost' identified by 'zabbix';
+
+mysql> flush privileges;
+数据库导入zabbix template
+看yum安装的zabbix-server-mysql-3.x.x 这个文件的版本是多少就改成多少
+
+[root@localhost software]# zcat /usr/share/doc/zabbix-server-mysql-3.2.4/create.sql.gz |mysql -uzabbix -pzabbix -b zabbix
+配置Zabbix server
+vi /etc/zabbix/zabbix_server.conf
+配置下面的几个参数
+带#号的就去掉#号，并修改其值
+
+ListenPort=10051
+DBHost=localhost
+DBName=zabbix
+DBUser=zabbix
+DBPassword=zabbix
+DBSocket=/var/lib/mysql/mysql.sock
+
+DBPort=3306
+配置zabbix-agent
+vi /etc/zabbix/zabbix_agentd.conf
+配置zabbix server的ip
+
+## Line 95 - Specify Zabbix server ##
+
+Server=127.0.0.1
+
+## Line 136 - Specify Zabbix server ##
+
+ServerActive=127.0.0.1
+
+## Line 147 - Specify Zabbix server Hostname or IP address
+
+Hostname=127.0.0.1
+
+修改PHP 设置
+修改php.ini为zabbix 建议的设置
+编辑文件 php.ini,
+
+[root@localhost software]# vi /etc/php.ini
+设置下面的参数：
+
+max_execution_time = 300
+
+max_input_time = 300
+
+memory_limit = 128M
+
+post_max_size = 32M
+
+upload_max_filesize = 2M
+
+date.timezone = Asia/Shanghai
+
+
+chown -R nobody.nobody /usr/share/zabbix
+chown -R nobody:nobody /etc/zabbix
+chown -R nobody:nobody /usr/lib/zabbix
+cp -ra /usr/share/zabiix /usr/local/
+chmod -R 755 /etc/zabbix/web	#这步很重要，否则下面打开zabbix页面php会报500错误
+chmod -R 777 /var/lib/php/session/ #这步很重要，否则下面打开zabbix页面php会报500错误
+
+安装完毕后，会在/etc/httpd/conf.d/下面自动生成zabbix.conf配置文件
+
+启动
+systemctl start zabbix-server
+systemctl enable zabbix-server
+systemctl start zabbix-agent
+systemctl enable zabbix-agent
+systemctl restart php-fpm
+systemctl restart httpd
+
+安装Zabbix
+http://wecloud.net.cn:8080/zabbix/setup.php
+启动
+http://wecloud.net.cn:8080/zabbix/index.php
