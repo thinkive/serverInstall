@@ -1,1 +1,1 @@
-yum install mod_dav_svn
+yum install httpd httpd-devel mod_dav_svn
