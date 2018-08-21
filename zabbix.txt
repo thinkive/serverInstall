@@ -90,3 +90,4 @@ systemctl restart httpd
 http://wecloud.net.cn:8080/zabbix/setup.php
 启动
 http://wecloud.net.cn:8080/zabbix/index.php
+默认用户名Admin 密码zabbix
