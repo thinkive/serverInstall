@@ -1,0 +1,100 @@
+1.首先查看机器上安装的所有php相关的rpm包,查找并删除
+删除方式一
+查询：
+1.rpm -qa | grep php 
+
+php-cli-5.3.3-22.el6.x86_64
+
+php-pdo-5.3.3-22.el6.x86_64
+
+php-gd-5.3.3-22.el6.x86_64
+
+php-fpm-5.3.3-22.el6.x86_64
+
+php-common-5.3.3-22.el6.x86_64
+
+php-5.3.3-22.el6.x86_64
+
+php-xml-5.3.3-22.el6.x86_64
+
+php-pear-1.9.4-4.el6.noarch
+
+
+2.按依赖顺序进行删除
+rpm -e php-fpm-5.3.3-22.el6.x86_64
+
+rpm-e php-pdo-5.3.3-22.el6.x86_64
+
+rpm -e php-pear-1.9.4-4.el6.noarch
+
+rpm-e php-cli-5.3.3-22.el6.x86_64
+
+rpm -e php-5.3.3-22.el6.x86_64
+
+rpm-e php-xml-5.3.3-22.el6.x86_64
+
+rpm -e php-gd-5.3.3-22.el6.x86_64
+
+rpm-e php-common-5.3.3-22.el6.x86_64
+
+删除方式二
+yum -y remove php*
+
+
+安装指定版本php(这里安装的是php72w)
+
+1.设置：yum源地址
+   rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+   rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+
+2.安装：
+   yum -y install php72w php72w-cli php72w-fpm php72w-common php72w-devel php72w-embedded php72w-gd php72w-mbstring php72w-mysqlnd php72w-opcache php72w-pdo php72w-xml php72w-bcmath
+
+
+3.sudo vim /etc/httpd/conf.modules.d/00-mpm-conf
+
+
+打开
+LoadModule mpm_worker_module modules/mod_mpm_worker.so
+
+关闭
+#LoadModule mpm_prefork_module modules/mod_mpm_prefork.so
+
+
+
+4.cp /etc/php-fpm.d/www.conf /etc/php-fpm.d/wecloud.net.cn.conf
+
+
+
+
+5.vim /etc/php-fpm.d/wecloud.net.cn.conf
+修改内容如下：
+; listen = 127.0.0.1:9000
+listen = /var/run/php-fpm/wecloud.net.cn.sock
+
+# also, make sure you add the following 3 lines:
+listen.owner = nobody
+listen.group = nobody
+listen.mode = 0660
+
+6.查看当前安装的版本
+php -v 
+
+7.设置开机启动
+systemctl enable php-fpm  
+
+
+启动及停止php-fpm
+完成php-fpm安装之后，使用“systemctl”命令设定开机自动启动。
+
+# systemctl enable php-fpm.service
+接下来“systemctl start php-fpm.service”命令启动php-fpm。
+
+# systemctl start php-fpm.service
+停止php-fpm时使用“systemctl stop php-fpm.service”命令。
+
+# systemctl stop php-fpm.service
+
+测试访问：
+http://www.wecloud.net.cn:8080/cms/ZenTaoPMS.9.1.2/zentaopms/www/index.php
+
