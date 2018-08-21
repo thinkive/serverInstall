@@ -1,0 +1,44 @@
+httpd 卸载
+1:查看安装的httpd
+rpm -qa | grep httpd
+停止当前httpd
+systemctl stop httpd.service
+卸载命令（rpm -e 或者yum -erase 命令都可以，不过rpm -e命名必须要自己先卸载依赖包，所以我用yum -erase命令卸载）
+yum erase httpd.x86_64
+安装
+yum install httpd httpd-devel 
+ 修改
+ vi /etc/httpd/conf/httpd.conf
+ 修改端口80为8080
+ 修改User Group为nobody
+ 修改ServerName
+ 修改DocumentRoot 为/root/www/nodejs/trunk/public/www
+ 修改<Directory /> 
+启动
+systemctl start/stop/restart httpd
+测试
+http://www.wecloud.net.cn:8080/cms/ZenTaoPMS.9.1.2/zentaopms/www/robots.txt
+增加Php支持
+目的增加下列参数
+在/etc/httpd/http.d/ 新增php.conf文件 内容如下
+# Tell the PHP interpreter to handle files with a .php extension.
+
+#
+# Allow php to handle Multiviews
+#
+AddType text/html .php
+
+#
+# Add index.php to the list of files that will be served as directory
+# indexes.>
+#
+DirectoryIndex index.php
+
+#
+# Uncomment the following lines to allow PHP to pretty-print .phps
+# files as PHP source code:
+#
+<FilesMatch \.php$>
+     SetHandler application/x-httpd-php
+</FilesMatch
+
